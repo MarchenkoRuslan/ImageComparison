@@ -42,7 +42,7 @@ def compare_images(imageA_path, imageB_path):
 
     # Checking the size of processed images
     if processedA.shape[0] < 7 or processedA.shape[1] < 7 or processedB.shape[0] < 7 or processedB.shape[1] < 7:
-        raise ValueError("Обработанные изображения слишком малы для вычисления SSIM.")
+        raise ValueError("Processed images are too small for SSIM calculation.")
 
     # Setting the window size for SSIM
     win_size = min(processedA.shape[0], processedA.shape[1], processedB.shape[0], processedB.shape[1])
@@ -81,6 +81,6 @@ imageB_path = 'image/ethalon.jpg'
 # Comparison of processed images
 try:
     similarity_score = compare_images(imageA_path, imageB_path)
-    print(f"Схожесть изображений: {similarity_score * 100:.2f}%")
+    print(f"Similarity of images: {similarity_score * 100:.2f}%")
 except ValueError as e:
     print(e)
