@@ -37,7 +37,7 @@ contours = imutils.grab_contours(contours)
 
 # Loop over each contour
 for contour in contours:
-    if cv2.contourArea(contour) > 500:
+    if cv2.contourArea(contour) > 500:  # Increase this value to filter out smaller contours
         # Calculate bounding box
         (x, y, w, h) = cv2.boundingRect(contour)
         # Draw bounding box
