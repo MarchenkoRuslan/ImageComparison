@@ -4,25 +4,25 @@ from skimage.metrics import structural_similarity as ssim
 
 
 def find_screen_contour(image):
-    # Преобразование в градации серого
+    # Convert to grayscale
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    # Размытие изображения для уменьшения шума
+    # Blur an image to reduce noise
     blurred = cv2.GaussianBlur(gray, (5, 5), 0)
-    # Обнаружение краев
+    # Edge detection
     edged = cv2.Canny(blurred, 30, 150)
-    # Нахождение контуров
+    # Finding contours
     contours, _ = cv2.findContours(edged.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-    # Предполагаем, что экран имеет наибольший контур
+    # We assume that the screen has the largest outline
     screen_contour = max(contours, key=cv2.contourArea)
     return screen_contour
 
 
 def create_mask_for_screen(image, contour):
-    # Создание маски для экрана
+    # Creating a Screen Mask
     mask = np.zeros(image.shape[:2], dtype="uint8")
     cv2.drawContours(mask, [contour], -1, 255, -1)
-    # Расширение маски, чтобы избежать граничных эффектов
+    # Mask expansion to avoid edge effects
     mask = cv2.dilate(mask, None, iterations=5)
     return mask
 
@@ -40,32 +40,32 @@ def compare_images(imageA_path, imageB_path):
     processedA = preprocess_image(imageA_path)
     processedB = preprocess_image(imageB_path)
 
-    # Проверка размера обработанных изображений
+    # Checking the size of processed images
     if processedA.shape[0] < 7 or processedA.shape[1] < 7 or processedB.shape[0] < 7 or processedB.shape[1] < 7:
         raise ValueError("Обработанные изображения слишком малы для вычисления SSIM.")
 
-    # Настройка размера окна для SSIM
+    # Setting the window size for SSIM
     win_size = min(processedA.shape[0], processedA.shape[1], processedB.shape[0], processedB.shape[1])
     if win_size % 2 == 0:
         win_size -= 1
 
-    # Вычисление SSIM и получение разницы
+    # Calculating SSIM and getting the difference
     score, diff = ssim(processedA, processedB, full=True, win_size=win_size)
 
-    # Нормализация разницы для отображения
+    # Normalizing the difference for display
     diff = (diff * 255).astype("uint8")
 
-    # Применение порогового фильтра для выделения различий
+    # Applying a threshold filter to highlight differences
     thresh = cv2.threshold(diff, 0, 255, cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)[1]
 
-    # Нахождение контуров различий
+    # Finding the contours of differences
     contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-    # Визуализация контуров на оригинальном изображении
+    # Visualization of contours on the original image
     compare_image = cv2.imread(imageB_path)
     cv2.drawContours(compare_image, contours, -1, (0, 0, 255), 3)
 
-    # Отображение и сохранение результатов
+    # Displaying and saving results
     cv2.imshow("Compared image with Differences", compare_image)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
@@ -74,11 +74,11 @@ def compare_images(imageA_path, imageB_path):
     return score
 
 
-# Пути к изображениям
-imageA_path = 'image/ethalon.jpg'
-imageB_path = 'image/exemplar.jpg'
+# Paths to images
+imageA_path = 'image/exemplar.jpg'
+imageB_path = 'image/ethalon.jpg'
 
-# Сравнение обработанных изображений
+# Comparison of processed images
 try:
     similarity_score = compare_images(imageA_path, imageB_path)
     print(f"Схожесть изображений: {similarity_score * 100:.2f}%")
