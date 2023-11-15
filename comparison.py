@@ -33,7 +33,7 @@ contours = imutils.grab_contours(contours)
 # Every contour is drawn in red color
 for contour in contours:
     # Minimum area of the contour
-    if cv2.contourArea(contour) > 500:
+    if cv2.contourArea(contour) > 500:  # May be changed if you may need to reduce the area
         # Calculate the bounding rectangle of the contour
         (x, y, w, h) = cv2.boundingRect(contour)
         # Draw the rectangle in the image
@@ -43,7 +43,7 @@ for contour in contours:
 cv2.putText(imgB, f"Similarity: {similar * 100:.2f}%", (10, 30), cv2.FONT_HERSHEY_SIMPLEX,
             0.7, (255, 0, 0), 2)
 
-# Show the images in a window
+# Show the images in a new window
 result = np.hstack((imgA, imgB))
 cv2.imshow('Output', result)
 
